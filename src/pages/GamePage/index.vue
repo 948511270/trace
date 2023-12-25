@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getCurrentInstance, ref, onMounted, Ref } from 'vue';
+import { getCurrentInstance, onMounted, onUpdated, onBeforeMount, ref, Ref } from 'vue';
 import request from '@/utils/request'
 
 // 获取$router对象
@@ -8,86 +8,98 @@ const router = instance?.proxy?.$router;
 
 
 console.log("模式：", router?.currentRoute.value.query.mode);
-const latitude: Ref<string> = ref('')
-const longitude: Ref<string> = ref('')
-const country: Ref<string> = ref('')
-const capital: Ref<string> = ref('')
-const placename: Ref<string> = ref('')
 
-const submitForm = () => {
-    const formData = new FormData();
-    if (image.value != null) {
-        let validInputElement: HTMLInputElement = image.value as HTMLInputElement;
-        if (validInputElement.files) {
-            const imageFile = validInputElement.files[0];
-            formData.append('image', imageFile);
-        }
 
-        formData.append('latitude', latitude.value);
-        formData.append('longitude', longitude.value);
-        formData.append('country', country.value);
-        formData.append('capital', capital.value);
-        formData.append('placename', placename.value);
-    }
-    //  展示 FormData 数据，运行时请删去
-    for (let entry of formData.entries()) {
-        const [fieldName, value] = entry;
-        console.log(fieldName, value);
-        // 在这里可以对每个表单字段做一些操作，比如将其发送到服务器
-    }
+let imageUrlRef: Ref<string | undefined> = ref(undefined);
+const getScene = () => {
 
-    request.post("http://192.168.98.1:3000/addScene", formData)
-        .then((res) => {
-            console.log("res", res);
+  request.get("http://192.168.98.1:3000/getScene")
+    .then((res) => {
+      console.log("res", res.data.buffer);
 
-        }).catch((err)=>{
-            console.log(err);
-            
-        })
-}
-const getScene = () =>{
-    
-    request.get("http://192.168.98.1:3000/getScene")
-        .then((res) => {
-            console.log("res", res);
+      // 他妈的，一开始 res.data.buffer.data数据是number类型数组，number数组不能转成blob
+      const uint8Array = new Uint8Array(res.data.buffer.data);
+      const blob = new Blob([uint8Array], { type: 'image/png' });
+      imageUrlRef.value = URL.createObjectURL(blob)
 
-        }).catch((err)=>{
-            console.log(err);
-            
-        })
+
+    }).catch((err) => {
+      console.log(err);
+
+    })
 }
 
 
-const image = ref(null)
+const containerDomRef = ref<HTMLElement | null>(null);
+const containerWidthRef = ref<number>(0);
+const containerHeightRef = ref<number>(0);
+
+const adjustImageSize = () => {
+  const container = containerDomRef.value;
+  if (container) {
+    containerWidthRef.value = container.clientWidth;
+    containerHeightRef.value = container.clientHeight;
+  }
+
+
+  const img = new Image();
+  img.src = imageUrlRef.value as string;
+
+  img.onload = () => {
+
+    if (containerDomRef.value) {
+      containerDomRef.value.style.width = '100%';
+      containerDomRef.value.style.height = '100%';
+    }
+
+
+
+
+
+  };
+}
+
 onMounted(() => {
-
+  console.log("onMounted");
+  getScene()
 });
+onUpdated(() => {
+  // URL.revokeObjectURL(imageUrl);
+  console.log("updated");
+  console.log("imageUrlRef", imageUrlRef.value);
+  // URL.revokeObjectURL(imageUrlRef.value as string)
+})
+onBeforeMount(() => {
+
+})
 </script>
 
 <template>
-    <form @submit.prevent="submitForm">
-        <!-- <form> -->
-        <label for="image">选择图片：</label>
-        <input type="file" id="image" ref="image" accept="image/*"><br><br>
+  <div class="container">
+    <img v-if="imageUrlRef" :src="imageUrlRef" alt="场景图片，请等待加载..." ref="containerDomRef" class="responsive-image"
+      @load="adjustImageSize">
 
-        <label for="latitude">经度：</label>
-        <input type="text" id="latitude" v-model="latitude"><br><br>
-
-        <label for="longitude">纬度：</label>
-        <input type="text" id="longitude" v-model="longitude"><br><br>
-
-        <label for="location">国家：</label>
-        <input type="text" id="location" v-model="country"><br><br>
-        
-        <label for="location">首都：</label>
-        <input type="text" id="location" v-model="capital"><br><br>
-
-        <label for="location">地名：</label>
-        <input type="text" id="location" v-model="placename"><br><br>
-
-        <button type="submit">上传图片</button>
-    </form>
-    <div @click="getScene">获取场景</div>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+body,
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.container {
+  text-align: center;
+  height: 33vh;
+
+  .responsive-image {
+    max-width: 100%;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+}
+</style>

@@ -18,6 +18,11 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../pages/GamePage/index.vue')
     },
     {
+        path: '/add',
+        name: 'Add',
+        component: () => import('../pages/GamePage/index.vue')
+    },
+    {
         path:'/',
         redirect:'/menu'
     }
