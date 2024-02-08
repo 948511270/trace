@@ -40,6 +40,28 @@ const submitForm = () => {
             
         })
 }
+
+const placeRef = ref()
+const placeEngRef = ref()
+
+
+
+const modifyObj = () => {
+    const params = {
+        placename : placeRef.value,
+        kValue : placeEngRef.value
+    }
+    console.log("params",params);
+    
+    request.post("http://192.168.98.1:3000/modifyObj",params)
+        .then((res) => {
+            console.log("res", res);
+
+        }).catch((err)=>{
+            console.log(err);
+            
+        })
+}
 const getScene = () =>{
     
     request.get("http://192.168.98.1:3000/getScene")
@@ -83,6 +105,17 @@ onMounted(() => {
         <button type="submit">上传图片</button>
     </form>
     <div @click="getScene">获取场景</div>
+
+    <!-- 三个输入框 -->
+    <label for="input1">匹配值1：</label>
+    <input type="text" v-model="placeRef" id="input1">
+
+    <label for="input2">增加值2：</label>
+    <input type="text" v-model="placeEngRef" id="input2">
+
+
+    <!-- 按钮 -->
+    <button @click="modifyObj">点击我</button>
 </template>
 
 <style scoped lang="scss"></style>

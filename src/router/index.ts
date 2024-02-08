@@ -20,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/add',
         name: 'Add',
-        component: () => import('../pages/GamePage/index.vue')
+        component: () => import('../pages/Add/index.vue')
     },
     {
         path:'/',

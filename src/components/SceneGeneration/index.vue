@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import {  onMounted, ref, Ref } from 'vue';
+import {  onMounted, ref, Ref} from 'vue';
 import request from '@/utils/request'
+import emitter from '@/utils/bus';
 
 // 获取场景图片 
 let imageUrlRef: Ref<string | undefined> = ref(undefined);
 const getScene = () => {
 
   request.get("http://192.168.98.1:3000/getScene")
-    .then((res) => {
-      console.log("res", res.data.buffer);
-
+    .then((res) => { 
       // 他妈的，一开始 res.data.buffer.data数据是number类型数组，number数组不能转成blob
       const uint8Array = new Uint8Array(res.data.buffer.data);
       const blob = new Blob([uint8Array], { type: 'image/png' });
       imageUrlRef.value = URL.createObjectURL(blob)
-
-      console.log("获取场景图片完毕");
-
+      // 将正确答案从SceneGeneration组件传给ButtonInteracion组件    
+      emitter.emit('sendAnswer',res.data.placename)
     }).catch((err) => {
       console.log(err);
 
@@ -28,9 +26,7 @@ const containerDomRef = ref<HTMLElement | null>(null);
 const containerWidthRef = ref<number>(0);
 const containerHeightRef = ref<number>(0);
 
-const adjustImageSize = () => {
-  console.log("组件进入adjustImageSize");
-  
+const adjustImageSize = () => { 
   const container = containerDomRef.value;
   if (container) {
     containerWidthRef.value = container.clientWidth;
@@ -41,8 +37,6 @@ const adjustImageSize = () => {
   img.src = imageUrlRef.value as string;
 
   img.onload = () => {
-    console.log("进入img.onload");
-    console.log("containerDomRef",containerDomRef);
     
     if (containerDomRef.value) {
       containerDomRef.value.style.width = '100%';
@@ -52,7 +46,6 @@ const adjustImageSize = () => {
 }
 
 onMounted(() => {
-  console.log("组件onMounted");
   getScene()
 });
 

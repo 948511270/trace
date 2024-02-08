@@ -9,19 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.6.2",
-    "cesium": "1.104",
-    "sass": "^1.69.5",
+    "axios": "^1.6.7",
+    "cesium": "1.99",
+    "mitt": "^3.0.1",
+    "sass": "^1.70.0",
     "three": "^0.159.0",
-    "vue": "^3.3.4",
+    "vite-plugin-cesium": "^1.2.22",
+    "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@types/node": "^20.10.4",
+    "@types/node": "^20.11.7",
     "@types/three": "^0.159.0",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vue-tsc": "^1.8.5"
+    "@vitejs/plugin-vue": "^4.6.2",
+    "typescript": "^5.3.3",
+    "vite": "^4.5.2",
+    "vue-tsc": "^1.8.27"
   }
 }
