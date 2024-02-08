@@ -24,10 +24,19 @@ onBeforeMount(() => {
 <template>
   <!-- 如果mode是1，2，3时，才需要显示场景 -->
   <div class="scene-generation" v-if="mode === '1' || mode === '2' || mode === '3'">
+    <!-- 如果选择的是第一个：场景——国家（文字） -->
+    <template v-if="mode === '1'">
       <scene-generation></scene-generation>
+      
+    </template>
+      
   </div>
   <div class="button-interacion">
+    <!-- 如果选择的是第一个：场景——国家（文字） -->
+    <template v-if="mode === '1'">
       <button-interacion></button-interacion>
+    </template>
+      
   </div>
 </template>
 
